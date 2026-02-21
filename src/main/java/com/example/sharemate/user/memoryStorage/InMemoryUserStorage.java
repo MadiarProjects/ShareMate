@@ -1,69 +1,79 @@
 package com.example.sharemate.user.memoryStorage;
 
-import com.example.sharemate.exceptions.AlreadyExictException;
+import com.example.sharemate.exceptions.AlreadyExistException;
 import com.example.sharemate.exceptions.NotFoundedException;
-import com.example.sharemate.item.Item;
 import com.example.sharemate.user.dto.UserCreateDto;
-import com.example.sharemate.user.dto.UserMapper;
-import com.example.sharemate.user.dto.UserShortDto;
-import com.example.sharemate.user.dto.UserUpdateDto;
+//import com.example.sharemate.user.dto.UserMapper;
 import com.example.sharemate.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.id.uuid.LocalObjectUuidHelper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
-    private final List<User> users=new ArrayList<>();
-    private final UserMapper userMapper;
-    private Long nextId=0L;
+    private final List<User> users = new ArrayList<>();
+    //    private final UserMapper userMapper;
+    private Long nextId = 0L;
+
     @Override
-    public UserShortDto create(UserCreateDto userCreateDto) {
+    public User create(UserCreateDto userCreateDto) {
         User user = new User(
                 ++nextId,
-                userCreateDto.getLogin(),
-                userCreateDto.getPassword(),
-                userCreateDto.getItems()
+                userCreateDto.getName(),
+                userCreateDto.getEmail()
         );
-        if (users.contains(user)){
-        throw new AlreadyExictException("пользователь с таким логином уже существует");
-        }else {
+        if (users.contains(user)) {
+            throw new AlreadyExistException("пользователь с таким email уже существует");
+        } else {
             users.add(user);
-            return userMapper.toShortDto(user);
+            return user;
+
         }
     }
 
     @Override
-    public List<UserShortDto> getAll() {
-        List<UserShortDto> userShortDtos=new ArrayList<>();
-        users.forEach(user->{
-            userShortDtos.add(userMapper.toShortDto(user));
-        });
-        return userShortDtos;
+    public List<User> getAll() {
+        return users;
     }
 
     @Override
     public User getById(Long id) {
         return users.stream()
-                .map(user -> {
-                    user.getId().equals(id);
-                })
+                .filter(user -> user.getId().equals(id))
                 .findFirst()
-                .orElseThrow(()->new NotFoundedException("пользователя с таким айди не существует"));
+                .orElseThrow(() -> new NotFoundedException("пользователя с таким айди не существует"));
     }
 
     @Override
-    public User update(UserUpdateDto userUpdateDto) {
-        User user=getById(userUpdateDto.getId());
+    public User update(UserCreateDto userCreateDto, Long id) {
+        User updatedUser = getById(id);
+        boolean emailIsExists = users.stream()
+                .anyMatch(user ->!(user.getId().equals(updatedUser.getId())) &&user.getEmail().equals(userCreateDto.getEmail()));
+        if (emailIsExists) {
+            throw new AlreadyExistException("email already exists");
+        }
+        if (userCreateDto.getName() != null) {
+            updatedUser.setName(userCreateDto.getName());
+        }
+        if (userCreateDto.getEmail() != null) {
+            updatedUser.setEmail(userCreateDto.getEmail());
+        }
+        users.removeIf(user->user.getId().equals(id));
+        users.add(updatedUser);
+        return updatedUser;
     }
 
     @Override
     public void delete(Long id) {
-
+        if (users.removeIf(user -> user.getId().equals(id))) {
+            nextId--;
+        }else {
+            throw new NotFoundedException("user with this id doesnt exist");
+        }
     }
 }

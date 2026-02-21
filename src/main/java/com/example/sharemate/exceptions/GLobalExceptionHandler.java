@@ -7,6 +7,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GLobalExceptionHandler {
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponce alreadyExist(AlreadyExistException e){
+        return new ErrorResponce(e.getMessage());
+    }
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponce notFounded(NotFoundedException e){
         return new ErrorResponce(e.getMessage());
