@@ -1,10 +1,7 @@
-package com.example.sharemate.item.module;
+package com.example.sharemate.item.model;
 
 import com.example.sharemate.user.model.User;
 import lombok.*;
-import lombok.experimental.FieldNameConstants;
-
-import java.util.Objects;
 
 @Setter@Getter
 public class Item {

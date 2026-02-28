@@ -1,19 +1,14 @@
 package com.example.sharemate.item.memoryStorage;
 
 import com.example.sharemate.exceptions.AlreadyExistException;
-import com.example.sharemate.exceptions.InvalidParamException;
 import com.example.sharemate.exceptions.NotFoundedException;
-import com.example.sharemate.item.ItemService;
 import com.example.sharemate.item.dto.ItemCreateDto;
 import com.example.sharemate.item.dto.ItemUpdateDto;
-import com.example.sharemate.item.module.Item;
-import com.example.sharemate.user.dto.UserCreateDto;
-import com.example.sharemate.user.memoryStorage.InMemoryUserStorage;
+import com.example.sharemate.item.model.Item;
 import com.example.sharemate.user.memoryStorage.UserStorage;
 import com.example.sharemate.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

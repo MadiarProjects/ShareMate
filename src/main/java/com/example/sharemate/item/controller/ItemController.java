@@ -3,10 +3,9 @@ package com.example.sharemate.item.controller;
 import com.example.sharemate.item.ItemService;
 import com.example.sharemate.item.dto.ItemCreateDto;
 import com.example.sharemate.item.dto.ItemUpdateDto;
-import com.example.sharemate.item.module.Item;
+import com.example.sharemate.item.model.Item;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.LifecycleState;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

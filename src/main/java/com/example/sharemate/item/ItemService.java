@@ -3,7 +3,7 @@ package com.example.sharemate.item;
 import com.example.sharemate.item.dto.ItemCreateDto;
 import com.example.sharemate.item.dto.ItemUpdateDto;
 import com.example.sharemate.item.memoryStorage.ItemStorage;
-import com.example.sharemate.item.module.Item;
+import com.example.sharemate.item.model.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
