@@ -8,28 +8,27 @@ import com.example.sharemate.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
     private final List<User> users = new ArrayList<>();
-    //    private final UserMapper userMapper;
     private Long nextId = 0L;
 
     @Override
     public User create(UserCreateDto userCreateDto) {
         User user = new User(
-                ++nextId,
                 userCreateDto.getName(),
                 userCreateDto.getEmail()
         );
         if (users.contains(user)) {
             throw new AlreadyExistException("пользователь с таким email уже существует");
         } else {
+            user.setId(++nextId);
             users.add(user);
             return user;
 
@@ -71,7 +70,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void delete(Long id) {
         if (users.removeIf(user -> user.getId().equals(id))) {
-            nextId--;
+            log.info("user deleted at id:"+id);
         }else {
             throw new NotFoundedException("user with this id doesnt exist");
         }
