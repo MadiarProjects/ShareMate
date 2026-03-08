@@ -1,11 +1,11 @@
-create table users
+create table if not exists users
 (
     id    bigserial primary key,
     name  varchar(255) not null,
     email varchar(255) not null unique
 );
 
-create table items
+create table if not exists items
 (
     id          bigserial primary key,
     name        varchar(255)              not null,
@@ -14,7 +14,7 @@ create table items
     owner_id    bigint references users (id) not null
 );
 
-create table bookings
+create table if not exists bookings
 (
     id         bigserial primary key,
     start_date timestamp without time zone not null,
@@ -24,7 +24,7 @@ create table bookings
     status     int                         not null
 );
 
-create table comments
+create table if not exists comments
 (
     id        bigserial primary key,
     text      varchar(1000)               not null,
@@ -32,3 +32,4 @@ create table comments
     author_id bigint references users (id)   not null,
     created   timestamp without time zone not null
 );
+
