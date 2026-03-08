@@ -7,13 +7,13 @@ import com.example.sharemate.item.model.Item;
 import java.util.List;
 
 public interface ItemStorage {
-    public Item create(ItemCreateDto itemCreateDto,Long userId);
+    public Item create(Item item);
 
     public List<Item> getAll(Long userId);
     public Item getById(Long id);
     public List<Item> getByText(String text);
 
-    public Item update(ItemUpdateDto itemUpdateDto, Long id, Long userId);
+    public Item update(Item item);
 
-    public void delete(Long id,Long userId);
+    public void delete(Long id);
 }

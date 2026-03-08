@@ -1,6 +1,6 @@
 package com.example.sharemate.item.controller;
 
-import com.example.sharemate.item.ItemService;
+import com.example.sharemate.item.service.ItemService;
 import com.example.sharemate.item.dto.ItemCreateDto;
 import com.example.sharemate.item.dto.ItemUpdateDto;
 import com.example.sharemate.item.model.Item;
