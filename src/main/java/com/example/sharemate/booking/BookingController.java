@@ -20,16 +20,17 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<Booking> getAll(){
-        return bookingService.getAll();
+    public List<Booking> getAll(@RequestHeader(name = "X-Sharer-User-Id")Long userId){
+        return bookingService.getAllByBookerId(userId);
     }
+
     @GetMapping("/{bookingId}")
     public Booking getBookingsByBookerId(@PathVariable Long bookingId,@RequestHeader(name = "X-Sharer-User-Id")Long bookerId){
         return bookingService.getBookingByBookerId(bookingId,bookerId);
     }
     @GetMapping("/owner")
-    public List<Booking> getAllByBookerId(@RequestHeader(name = "X-Sharer-User-Id")Long bookerId){
-        return bookingService.getAllByBookerId(bookerId);
+    public List<Booking> getAllByBookerId(@RequestHeader(name = "X-Sharer-User-Id")Long ownerId){
+        return bookingService.findAllByOwnerId(ownerId);
     }
 
     @PatchMapping("/{bookingId}")

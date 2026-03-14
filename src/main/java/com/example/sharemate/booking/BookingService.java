@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -62,11 +63,11 @@ public class BookingService  {
 
     }
 
-//    public List<Booking> findAll() {
-//        return bookingRepository.findAll();
-//    }
-//
-//    public List<Booking> getById(Long id) {
-//
-//    }
+    public List<Booking> findAllByOwnerId(Long ownerId) {
+        List<Booking> isNullOrNot= bookingRepository.findAllByItem_Owner_Id(ownerId);
+        if(isNullOrNot.isEmpty()){
+            throw new NotFoundedException("not founded any match");
+        }
+        return isNullOrNot;
+    }
 }

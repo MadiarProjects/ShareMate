@@ -1,10 +1,14 @@
 package com.example.sharemate.item.service;
 
+import com.example.sharemate.booking.Booking;
+import com.example.sharemate.booking.BookingRepository;
+import com.example.sharemate.comment.Comment;
+import com.example.sharemate.comment.CommentService;
 import com.example.sharemate.exceptions.AlreadyExistException;
 import com.example.sharemate.exceptions.NotFoundedException;
 import com.example.sharemate.item.dto.ItemCreateDto;
 import com.example.sharemate.item.dto.ItemUpdateDto;
-import com.example.sharemate.item.memoryStorage.ItemStorage;
+import com.example.sharemate.item.dto.ItemWithCommentsDto;
 import com.example.sharemate.item.model.Item;
 import com.example.sharemate.item.repository.ItemRepository;
 import com.example.sharemate.user.model.User;
@@ -23,6 +27,8 @@ import java.util.List;
 public class ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
+    private final CommentService commentService;
+    private final BookingRepository bookingRepository;
 
     @Transactional
     public Item create(ItemCreateDto itemCreateDto, Long userId) {
@@ -44,14 +50,39 @@ public class ItemService {
         }
     }
 
+
+    @Transactional
+    public Comment createComment(Long itemId, Long userId, String text) {
+        Item item = getById(itemId);
+        User user = userService.getById(userId);
+        List<Booking> bookings= bookingRepository.findAllByBooker_Id(user.getId());
+        return commentService.createComment(item, user, text,bookings);
+    }
+    @Transactional
+    public ItemWithCommentsDto getItemWithComments(Long itemId,Long userId){
+        Item item=getById(itemId);
+        User user = userService.getById(userId);
+        List<Comment> comments=commentService.getCommentsByItemId(itemId).stream()
+                .filter(comment -> comment.getUser().equals(user))
+                .toList();
+        return new ItemWithCommentsDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getOwner(),
+                item.getAvailable(),
+                comments
+        );
+    }
+
     public List<Item> getAll(Long userId) {
         userService.getById(userId);
         return itemRepository.findAllByOwnerId(userId);
     }
 
     @Transactional
-    public Item getById(Long id) {
-        Item item = itemRepository.findById(id).orElse(null);
+    public Item getById(Long itemId) {
+        Item item = itemRepository.findById(itemId).orElse(null);
         if (item == null) {
             throw new NotFoundedException("item с таким айди не существует");
         } else {
