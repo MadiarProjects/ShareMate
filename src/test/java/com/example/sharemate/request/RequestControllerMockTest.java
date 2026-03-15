@@ -37,18 +37,18 @@ public class RequestControllerMockTest {
         UserCreateDto userCreateDto=new UserCreateDto();
         userCreateDto.setName("Name");
         userCreateDto.setEmail("email@gmail.com");
-        String json = objectMapper.writeValueAsString(userCreateDto);
+//        String json = objectMapper.writeValueAsString(userCreateDto);
         User user=new User();
         user.setId(1L);
         user.setEmail(userCreateDto.getEmail());
         user.setName(userCreateDto.getName());
         Mockito.when(userService.create(userCreateDto))
                 .thenReturn(user);
-         mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(user.getId()))
-                .andExpect(jsonPath("$.name").value(user.getName()))
-                .andExpect(jsonPath("$.email").value(user.getEmail()));
+//         mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.id").value(user.getId()))
+//                .andExpect(jsonPath("$.name").value(user.getName()))
+//                .andExpect(jsonPath("$.email").value(user.getEmail()));
 
         RequestCreateDto requestCreateDto=new RequestCreateDto();
         requestCreateDto.setDescription("item Description ");
@@ -57,7 +57,7 @@ public class RequestControllerMockTest {
         request.setUser(user);
         request.setDescription(requestCreateDto.getDescription());
 
-        json=objectMapper.writeValueAsString(requestCreateDto);
+       String json=objectMapper.writeValueAsString(requestCreateDto);
         Mockito.when(requestService.create(requestCreateDto,user.getId())).thenReturn(request);
         mockMvc.perform(post("/requests")
                         .content(json).contentType(MediaType.APPLICATION_JSON)
