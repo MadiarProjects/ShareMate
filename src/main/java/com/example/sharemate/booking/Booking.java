@@ -2,13 +2,12 @@ package com.example.sharemate.booking;
 
 
 import com.example.sharemate.enums.ItemStatus;
-import com.example.sharemate.item.model.Item;
-import com.example.sharemate.user.model.User;
+import com.example.sharemate.item.Item;
+import com.example.sharemate.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity

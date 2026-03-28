@@ -18,12 +18,16 @@ public class RequestController {
     }
 
     @GetMapping("/all")
-    public List<Request> getAllRequestsFromUser(
+    public List<RequestShortDto> getAll(
             @RequestParam (defaultValue = "0",required = false)Integer from,
-            @RequestParam(defaultValue = "20",required = false) Integer size,
-            @RequestHeader(name = "X-Sharer-User-Id")Long userId){
-        return requestService.getAllRequestsFromUser(from,size,userId);
+            @RequestParam(defaultValue = "20",required = false) Integer size){
+        return requestService.getAll(from,size);
     }
+    @GetMapping("/{id}")
+    public RequestFullDto getById(@PathVariable Long id){
+        return requestService.getById(id);
+    }
+
 
 }
 

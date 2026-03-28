@@ -1,4 +1,4 @@
-package com.example.sharemate.item.dto;
+package com.example.sharemate.item;
 
 import lombok.Data;
 

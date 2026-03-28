@@ -1,8 +1,13 @@
 package com.example.sharemate.request;
 
 
-import com.example.sharemate.user.dto.UserCreateDto;
-import com.example.sharemate.user.model.User;
+import com.example.sharemate.item.Item;
+import com.example.sharemate.item.ItemCreateDto;
+import com.example.sharemate.item.ItemRepository;
+import com.example.sharemate.item.ItemRequestAnswerDto;
+import com.example.sharemate.user.UserCreateDto;
+import com.example.sharemate.user.User;
+import com.example.sharemate.user.UserRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 public class RequestControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -31,29 +37,22 @@ public class RequestControllerTest {
     ObjectMapper objectMapper;
     @Autowired
     private RequestRepository requestRepository;
-
+    @Autowired
+    ItemRepository itemRepository;
+    @Autowired
+    UserRepository userRepository;
 
     User user;
 
-    @BeforeAll
-    void createUserForTests() throws Exception {
-        UserCreateDto userCreateDto = new UserCreateDto();
-        userCreateDto.setName("Name");
-        userCreateDto.setEmail("email@gmail.com");
-        String json = objectMapper.writeValueAsString(userCreateDto);
-
-        String responseJson = mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").value(userCreateDto.getName()))
-                .andExpect(jsonPath("$.email").value(userCreateDto.getEmail()))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        user = objectMapper.readValue(responseJson, User.class);
+    @BeforeEach
+    void createUserForTests()  {
+        User createUser=new User();
+        createUser.setName("name"+randomNum++);
+        createUser.setEmail("email"+randomNum++);
+        user =userRepository.save(createUser);
     }
 
-    static int randomNum = 0;
+     int randomNum = 0;
 
     @Test
     void createRequest_shouldReturnOk_whenRequestDidNotCreateFromUser() throws Exception {
@@ -67,18 +66,14 @@ public class RequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.user.id").value(user.getId()))
-                .andExpect(jsonPath("$.user.name").value(user.getName()))
-                .andExpect(jsonPath("$.user.email").value(user.getEmail()))
-                .andExpect(jsonPath("$.description").value(requestCreateDto.getDescription()))
-                .andExpect(jsonPath("$.created").exists());
-
+                .andExpect(jsonPath("$.description").value(requestCreateDto.getDescription()));
     }
 
     @Test
-    void createRequest_shouldReturnConfilct_whenRequestCreatedFromUser() throws Exception {
+    void createRequest_shouldReturnConfilct_whenRequestAlreadyExistsFromUser() throws Exception {
         String json;
         RequestCreateDto requestCreateDto = new RequestCreateDto();
-        requestCreateDto.setDescription("item Description ");
+        requestCreateDto.setDescription("item Description " + randomNum++);
         json = objectMapper.writeValueAsString(requestCreateDto);
         Request request = new Request();
         request.setUser(user);
@@ -92,47 +87,119 @@ public class RequestControllerTest {
 
     @Test
     void getAllRequestsFromUser_shouldReturnListOfRequests_whenRequestsAreExist() throws Exception {
-        Request request1 = requestCreateForTests();
-        Request request2 = requestCreateForTests();
-        Request request3 = requestCreateForTests();
+        RequestShortDto request1 = mapperToShortDto(requestCreateForTests());
+        RequestShortDto request2 = mapperToShortDto(requestCreateForTests());
+        RequestShortDto request3 = mapperToShortDto(requestCreateForTests());
         mockMvc.perform(get("/requests/all")
-                        .param("from","0")
-                        .param("size","20")
+                        .param("from", "0")
+                        .param("size", "20")
                         .header("X-Sharer-User-Id", user.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(3))
-                .andExpect(jsonPath("$[2].id").value(request1.getId()))
-                .andExpect(jsonPath("$[2].description").value(request1.getDescription()))
-                .andExpect(jsonPath("$[2].created").exists())
-                .andExpect(jsonPath("$[2].user.id").value(user.getId()))
+                .andExpect(jsonPath("$[0].id").value(request1.getId()))
+                .andExpect(jsonPath("$[0].description").value(request1.getDescription()))
+                .andExpect(jsonPath("$[0].requester").value(user.getName()))
                 .andExpect(jsonPath("$[1].id").value(request2.getId()))
                 .andExpect(jsonPath("$[1].description").value(request2.getDescription()))
-                .andExpect(jsonPath("$[1].created").exists())
-                .andExpect(jsonPath("$[1].user.id").value(user.getId()))
-                .andExpect(jsonPath("$[0].id").value(request3.getId()))
-                .andExpect(jsonPath("$[0].description").value(request3.getDescription()))
-                .andExpect(jsonPath("$[0].created").exists())
-                .andExpect(jsonPath("$[0].user.id").value(user.getId()));
+                .andExpect(jsonPath("$[1].requester").value(user.getName()))
+                .andExpect(jsonPath("$[2].id").value(request3.getId()))
+                .andExpect(jsonPath("$[2].description").value(request3.getDescription()))
+                .andExpect(jsonPath("$[2].requester").value(user.getName()));
     }
 
-    private Request requestCreateForTests() throws Exception {
-        String json;
-        RequestCreateDto requestCreateDto = new RequestCreateDto();
-        requestCreateDto.setDescription("item Description " + randomNum++);
-        json = objectMapper.writeValueAsString(requestCreateDto);
-        String responseJson = mockMvc.perform(post("/requests")
-                        .content(json).contentType(MediaType.APPLICATION_JSON)
+    @Test
+    void getAllRequestsFromUser_shouldReturnEmptyList_whenRequestsAreNotExist() throws Exception {
+        mockMvc.perform(get("/requests/all")
+                        .param("from", "0")
+                        .param("size", "20")
                         .header("X-Sharer-User-Id", user.getId()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(0));
+    }
+
+    @Test
+    void getById_shouldReturnRequestWithFullInformation_whenRequestIdGivenCorrectly() throws Exception {
+        Request request = requestCreateForTests();
+        RequestFullDto requestFullDto = mapperToFullDto(request);
+        ItemCreateDto itemCreateDto=new ItemCreateDto();
+        itemCreateDto.setName("name Item");
+        itemCreateDto.setAvailable(true);
+        itemCreateDto.setDescription("Item Description");
+        itemCreateDto.setRequestId(request.getId());
+        String json=objectMapper.writeValueAsString(itemCreateDto);
+
+        String itemResponse=mockMvc.perform(post("/items")
+                .content(json)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Sharer-User-Id", user.getId()))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.user.id").value(user.getId()))
-                .andExpect(jsonPath("$.user.name").value(user.getName()))
-                .andExpect(jsonPath("$.user.email").value(user.getEmail()))
-                .andExpect(jsonPath("$.description").value(requestCreateDto.getDescription()))
-                .andExpect(jsonPath("$.created").exists())
+                .andExpect(jsonPath("$.name").value(itemCreateDto.getName()))
+                .andExpect(jsonPath("$.description").value(itemCreateDto.getDescription()))
+                .andExpect(jsonPath("$.owner.id").value(user.getId()))
+                .andExpect(jsonPath("$.available").value(true))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        return objectMapper.readValue(responseJson, Request.class);
+//        Item item = new Item();
+//        item.setName("name");
+//        item.setRequest(request);
+//        item.setOwner(user);
+//        item.setAvailable(true);
+//        item.setDescription("Description" );
+//        itemRepository.save(item);
+        Item item=objectMapper.readValue(itemResponse,Item.class);
+        ItemRequestAnswerDto itemRequestAnswerDto = new ItemRequestAnswerDto(
+                item.getId(),
+                item.getDescription(),
+                request.getId(),
+                item.isAvailable()
+        );
+        mockMvc.perform(get("/requests/" + requestFullDto.getId()))
+                .andExpect(jsonPath("$.id").value(requestFullDto.getId()))
+                .andExpect(jsonPath("$.requester").value(user.getName()))
+                .andExpect(jsonPath("$.description").value(requestFullDto.getDescription()))
+                .andExpect(jsonPath("$.items.size()").value(1))
+                .andExpect(jsonPath("$.items[0].id").value(itemRequestAnswerDto.getId()))
+                .andExpect(jsonPath("$.items[0].description").value(itemRequestAnswerDto.getDescription()))
+                .andExpect(jsonPath("$.items[0].requestId").value(requestFullDto.getId()))
+                .andExpect(jsonPath("$.items[0].available").value(true));
+    }
+
+    @Test
+    void getById_shouldReturnNotFounded_whenRequestIdGivenWrong() throws Exception {
+        mockMvc.perform(get("/requests/" + ++randomNum))
+                .andExpect(status().isNotFound());
+    }
+
+
+    private RequestShortDto mapperToShortDto(Request request) {
+        RequestShortDto requestShortDto = new RequestShortDto();
+        requestShortDto.setId(request.getId());
+        requestShortDto.setRequester(request.getUser().getName());
+        requestShortDto.setDescription(request.getDescription());
+        return requestShortDto;
+    }
+
+    private RequestFullDto mapperToFullDto(Request request) {
+        RequestFullDto requestFullDto = new RequestFullDto();
+        requestFullDto.setId(request.getId());
+        requestFullDto.setRequester(request.getUser().getName());
+        requestFullDto.setDescription(request.getDescription());
+        requestFullDto.setItems(request.getItems().stream()
+                .map(item -> {
+                    return new ItemRequestAnswerDto(item.getId(),
+                            item.getDescription(),
+                            item.getRequest().getId(),
+                            item.isAvailable());
+                }).toList());
+        return requestFullDto;
+    }
+
+    private Request requestCreateForTests() throws Exception {
+        Request request=new Request();
+        request.setDescription("Description"+randomNum++);
+        request.setUser(user);
+        return requestRepository.save(request);
     }
 }

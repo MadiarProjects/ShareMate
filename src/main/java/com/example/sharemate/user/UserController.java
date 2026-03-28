@@ -1,12 +1,10 @@
-package com.example.sharemate.user.controller;
+package com.example.sharemate.user;
 
-import com.example.sharemate.user.dto.UserCreateDto;
-import com.example.sharemate.user.service.UserService;
+import com.example.sharemate.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.sharemate.user.model.User;
+import com.example.sharemate.user.User;
 
 import java.util.List;
 
@@ -20,8 +18,11 @@ public class UserController {
         return userService.create(userCreateDto);
     }
     @GetMapping
-    public List<User> getAll(){
-        return userService.getAll();
+    public List<User> getAll(
+            @RequestParam (defaultValue = "0",required = false)Integer from,
+            @RequestParam(defaultValue = "20",required = false) Integer size
+    ){
+        return userService.getAll(from,size);
     }
     @GetMapping("/{userId}")
     public User getById(@PathVariable(name = "userId") Long id){

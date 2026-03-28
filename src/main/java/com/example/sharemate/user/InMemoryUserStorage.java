@@ -1,11 +1,7 @@
-package com.example.sharemate.user.memoryStorage;
+package com.example.sharemate.user;
 
-import com.example.sharemate.exceptions.AlreadyExistException;
-import com.example.sharemate.exceptions.NotFoundedException;
-import com.example.sharemate.user.dto.UserCreateDto;
-import com.example.sharemate.user.model.User;
+import com.example.sharemate.user.User;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 

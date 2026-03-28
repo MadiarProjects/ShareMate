@@ -5,13 +5,20 @@ create table if not exists users
     email varchar(255) not null unique
 );
 
+create table if not exists item_requests
+(
+    id           bigserial primary key,
+    description  varchar(255)                 not null,
+    requestor_id bigint references users (id) not null
+    );
 create table if not exists items
 (
-    id          bigserial primary key,
-    name        varchar(255)              not null,
-    description varchar(1000)             not null,
-    available   boolean                   not null,
-    owner_id    bigint references users (id) not null
+    id              bigserial primary key,
+    name            varchar(255)                 not null,
+    description     varchar(1000)                not null,
+    available       boolean                      not null,
+    owner_id        bigint references users (id) not null,
+    item_request_id bigint references item_requests (id)
 );
 
 create table if not exists bookings
@@ -23,7 +30,6 @@ create table if not exists bookings
     booker_id  bigint references users (id)   not null,
     status     int                         not null
 );
-
 create table if not exists comments
 (
     id        bigserial primary key,
@@ -32,4 +38,5 @@ create table if not exists comments
     author_id bigint references users (id)   not null,
     created   timestamp without time zone not null
 );
+
 

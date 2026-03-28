@@ -1,13 +1,13 @@
-package com.example.sharemate.user.service;
+package com.example.sharemate.user;
 
 import com.example.sharemate.exceptions.AlreadyExistException;
 import com.example.sharemate.exceptions.NotFoundedException;
-import com.example.sharemate.user.dto.UserCreateDto;
-import com.example.sharemate.user.model.User;
-import com.example.sharemate.user.repository.UserRepository;
+import com.example.sharemate.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +33,13 @@ public class UserService {
         }
     }
 
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public List<User> getAll(Integer from,Integer size) {
+        Pageable pageable = PageRequest.of(
+                from / size,
+                size,
+                Sort.by( "id")
+        );
+        return userRepository.findAll(pageable).getContent();
     }
 
     @Transactional
@@ -62,7 +67,9 @@ public class UserService {
             updatedUser.setEmail(userCreateDto.getEmail());
         }
         return userRepository.save(updatedUser);
-
+    }
+    private List<User> getAll(){
+        return userRepository.findAll();
     }
     @Transactional
     public void delete(Long id) {

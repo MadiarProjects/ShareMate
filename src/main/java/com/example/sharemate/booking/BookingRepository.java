@@ -1,5 +1,6 @@
 package com.example.sharemate.booking;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -7,7 +8,9 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<Booking,Long> {
     Booking findByIdAndBooker_Id(Long id, Long bookerId);
 
+    List<Booking> findAllByBooker_Id(Long bookerId, Pageable pageable);
     List<Booking> findAllByBooker_Id(Long bookerId);
 
     List<Booking> findAllByItem_Owner_Id(Long itemOwnerId);
+
 }

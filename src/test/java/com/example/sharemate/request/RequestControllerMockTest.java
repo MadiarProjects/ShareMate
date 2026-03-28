@@ -1,11 +1,10 @@
 package com.example.sharemate.request;
 
 
-import com.example.sharemate.user.controller.UserController;
-import com.example.sharemate.user.dto.UserCreateDto;
-import com.example.sharemate.user.model.User;
-import com.example.sharemate.user.repository.UserRepository;
-import com.example.sharemate.user.service.UserService;
+import com.example.sharemate.user.UserController;
+import com.example.sharemate.user.UserCreateDto;
+import com.example.sharemate.user.User;
+import com.example.sharemate.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
-
-import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,19 +34,12 @@ public class RequestControllerMockTest {
         UserCreateDto userCreateDto=new UserCreateDto();
         userCreateDto.setName("Name");
         userCreateDto.setEmail("email@gmail.com");
-//        String json = objectMapper.writeValueAsString(userCreateDto);
         User user=new User();
         user.setId(1L);
         user.setEmail(userCreateDto.getEmail());
         user.setName(userCreateDto.getName());
         Mockito.when(userService.create(userCreateDto))
                 .thenReturn(user);
-//         mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(user.getId()))
-//                .andExpect(jsonPath("$.name").value(user.getName()))
-//                .andExpect(jsonPath("$.email").value(user.getEmail()));
-
         RequestCreateDto requestCreateDto=new RequestCreateDto();
         requestCreateDto.setDescription("item Description ");
         Request request=new Request();

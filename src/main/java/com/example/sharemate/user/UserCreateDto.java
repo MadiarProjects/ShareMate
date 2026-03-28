@@ -1,4 +1,4 @@
-package com.example.sharemate.user.dto;
+package com.example.sharemate.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

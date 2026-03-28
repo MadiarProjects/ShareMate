@@ -1,13 +1,5 @@
-package com.example.sharemate.item.memoryStorage;
+package com.example.sharemate.item;
 
-import com.example.sharemate.exceptions.AlreadyExistException;
-import com.example.sharemate.exceptions.NotFoundedException;
-import com.example.sharemate.item.dto.ItemCreateDto;
-import com.example.sharemate.item.dto.ItemUpdateDto;
-import com.example.sharemate.item.model.Item;
-import com.example.sharemate.user.memoryStorage.UserStorage;
-import com.example.sharemate.user.model.User;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +8,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class InMemoryItemStorage implements ItemStorage{
+public class InMemoryItemStorage implements ItemStorage {
     private final List<Item> items = new ArrayList<>();
 
     private Long nextId = 0L;
@@ -46,7 +38,7 @@ public class InMemoryItemStorage implements ItemStorage{
     @Override
     public List<Item> getByText(String text){
         return items.stream()
-                .filter(item -> item.getDescription().toLowerCase().contains(text.toLowerCase())&&item.getAvailable()==true)
+                .filter(item -> item.getDescription().toLowerCase().contains(text.toLowerCase())&&item.isAvailable())
                 .toList();
     }
 

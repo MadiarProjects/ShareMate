@@ -2,13 +2,11 @@ package com.example.sharemate.comment;
 
 
 import com.example.sharemate.booking.Booking;
-import com.example.sharemate.booking.BookingService;
 import com.example.sharemate.enums.ItemStatus;
 import com.example.sharemate.exceptions.NotFoundedException;
-import com.example.sharemate.item.model.Item;
-import com.example.sharemate.user.model.User;
+import com.example.sharemate.item.Item;
+import com.example.sharemate.user.User;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.LifecycleState;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +28,7 @@ public class CommentService {
         comment.setText(text);
         comment.setItem(item);
         comment.setUser(user);
+
         return commentRepository.save(comment);
     }
 

@@ -4,7 +4,6 @@ create table users
     name  varchar(255) not null,
     email varchar(255) not null unique
 );
-
 create table items
 (
     id              bigserial primary key,
@@ -38,3 +37,4 @@ create table item_requests
     description  varchar(255)                 not null,
     requestor_id bigint references users (id) not null
 );
+

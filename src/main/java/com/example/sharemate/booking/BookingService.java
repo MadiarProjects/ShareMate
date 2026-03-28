@@ -3,15 +3,16 @@ package com.example.sharemate.booking;
 
 import com.example.sharemate.enums.ItemStatus;
 import com.example.sharemate.exceptions.NotFoundedException;
-import com.example.sharemate.item.model.Item;
-import com.example.sharemate.item.service.ItemService;
-import com.example.sharemate.user.service.UserService;
+import com.example.sharemate.item.Item;
+import com.example.sharemate.item.ItemService;
+import com.example.sharemate.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Book;
 import java.security.InvalidParameterException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class BookingService  {
         booking.setStart(bookingCreateDto.getStart());
         booking.setEnd(bookingCreateDto.getEnd());
         Item item = itemService.getById(bookingCreateDto.getItemId());
-        if (!item.getAvailable()) {
+        if (!item.isAvailable()) {
             throw new InvalidParameterException("item can not be booked");
         }
         booking.setItem(item);
@@ -42,8 +43,13 @@ public class BookingService  {
         return bookingRepository.findByIdAndBooker_Id(bookingId,bookerId);
     }
 
-    public List<Booking> getAllByBookerId(Long bookerId){
-        return bookingRepository.findAllByBooker_Id(bookerId);
+    public List<Booking> getAllByBookerId(Long bookerId,Integer from,Integer size){
+        Pageable pageable = PageRequest.of(
+                from / size,
+                size,
+                Sort.by( "id")
+        );
+        return bookingRepository.findAllByBooker_Id(bookerId,pageable);
     }
 
     public Booking approve(Long userId, Long bookingId, boolean approve) {
@@ -63,11 +69,17 @@ public class BookingService  {
 
     }
 
-    public List<Booking> findAllByOwnerId(Long ownerId) {
+    public List<Booking> findAllByOwnerId(Long ownerId,Integer from,Integer size ) {
+        Pageable pageable = PageRequest.of(
+                from / size,
+                size,
+                Sort.by( "id")
+        );
         List<Booking> isNullOrNot= bookingRepository.findAllByItem_Owner_Id(ownerId);
         if(isNullOrNot.isEmpty()){
             throw new NotFoundedException("not founded any match");
         }
-        return isNullOrNot;
+        Page<Booking> bookingPage=new PageImpl<>(isNullOrNot,pageable,isNullOrNot.size());
+        return bookingPage.getContent();
     }
 }

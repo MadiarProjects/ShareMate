@@ -1,14 +1,13 @@
 package com.example.sharemate.comment;
 
 
-import com.example.sharemate.item.model.Item;
-import com.example.sharemate.user.model.User;
+import com.example.sharemate.item.Item;
+import com.example.sharemate.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity

@@ -1,8 +1,4 @@
-package com.example.sharemate.item.memoryStorage;
-
-import com.example.sharemate.item.dto.ItemCreateDto;
-import com.example.sharemate.item.dto.ItemUpdateDto;
-import com.example.sharemate.item.model.Item;
+package com.example.sharemate.item;
 
 import java.util.List;
 

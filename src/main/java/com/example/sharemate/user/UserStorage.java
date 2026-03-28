@@ -1,7 +1,6 @@
-package com.example.sharemate.user.memoryStorage;
+package com.example.sharemate.user;
 
-import com.example.sharemate.user.model.User;
-import com.example.sharemate.user.dto.UserCreateDto;
+import com.example.sharemate.user.User;
 
 import java.util.List;
 public interface UserStorage {

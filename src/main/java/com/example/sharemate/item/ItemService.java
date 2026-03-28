@@ -1,4 +1,4 @@
-package com.example.sharemate.item.service;
+package com.example.sharemate.item;
 
 import com.example.sharemate.booking.Booking;
 import com.example.sharemate.booking.BookingRepository;
@@ -6,15 +6,15 @@ import com.example.sharemate.comment.Comment;
 import com.example.sharemate.comment.CommentService;
 import com.example.sharemate.exceptions.AlreadyExistException;
 import com.example.sharemate.exceptions.NotFoundedException;
-import com.example.sharemate.item.dto.ItemCreateDto;
-import com.example.sharemate.item.dto.ItemUpdateDto;
-import com.example.sharemate.item.dto.ItemWithCommentsDto;
-import com.example.sharemate.item.model.Item;
-import com.example.sharemate.item.repository.ItemRepository;
-import com.example.sharemate.user.model.User;
-import com.example.sharemate.user.service.UserService;
+import com.example.sharemate.request.RequestRepository;
+import com.example.sharemate.request.RequestService;
+import com.example.sharemate.user.User;
+import com.example.sharemate.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +29,8 @@ public class ItemService {
     private final UserService userService;
     private final CommentService commentService;
     private final BookingRepository bookingRepository;
+    private final RequestService requestService;
+    private final RequestRepository requestRepository;
 
     @Transactional
     public Item create(ItemCreateDto itemCreateDto, Long userId) {
@@ -37,7 +39,7 @@ public class ItemService {
         item.setName(itemCreateDto.getName());
         item.setDescription(itemCreateDto.getDescription());
         item.setOwner(user);
-        item.setAvailable(itemCreateDto.getAvailable());
+        item.setAvailable(itemCreateDto.isAvailable());
 
         List<Item> items = itemRepository.findAllByOwnerId(userId);
 
@@ -46,6 +48,11 @@ public class ItemService {
         if (isItemExists) {
             throw new AlreadyExistException("owner at id:" + userId + ", already has item with that name " + item.getName());
         } else {
+            if (itemCreateDto.getRequestId()!=null&&itemCreateDto.isAvailable()){
+                item.setRequest(requestRepository.findById(itemCreateDto.getRequestId())
+                        .orElseThrow(()->new NotFoundedException("not founded request")));
+                requestService.addItemToRequest(item);
+            }
             return itemRepository.save(item);
         }
     }
@@ -70,14 +77,19 @@ public class ItemService {
                 item.getName(),
                 item.getDescription(),
                 item.getOwner(),
-                item.getAvailable(),
+                item.isAvailable(),
                 comments
         );
     }
 
-    public List<Item> getAll(Long userId) {
+    public List<Item> getAll(Long userId,Integer from,Integer size) {
+        Pageable pageable = PageRequest.of(
+                from / size,
+                size,
+                Sort.by( "id")
+        );
         userService.getById(userId);
-        return itemRepository.findAllByOwnerId(userId);
+        return itemRepository.findAllByOwnerId(userId,pageable);
     }
 
     @Transactional
@@ -129,5 +141,10 @@ public class ItemService {
         }
         itemRepository.deleteById(id);
         log.info("item deleted at id:" + id + ",owner id:" + userId);
+    }
+
+    private List<Item> getAll(Long userId) {
+        userService.getById(userId);
+        return itemRepository.findAllByOwnerId(userId);
     }
 }
