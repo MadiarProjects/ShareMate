@@ -52,7 +52,7 @@ public class RequestControllerTest {
         user =userRepository.save(createUser);
     }
 
-     int randomNum = 0;
+    static int randomNum = 0;
 
     @Test
     void createRequest_shouldReturnOk_whenRequestDidNotCreateFromUser() throws Exception {
@@ -153,7 +153,7 @@ public class RequestControllerTest {
                 item.getId(),
                 item.getDescription(),
                 request.getId(),
-                item.isAvailable()
+                item.getAvailable()
         );
         mockMvc.perform(get("/requests/" + requestFullDto.getId()))
                 .andExpect(jsonPath("$.id").value(requestFullDto.getId()))
@@ -191,7 +191,7 @@ public class RequestControllerTest {
                     return new ItemRequestAnswerDto(item.getId(),
                             item.getDescription(),
                             item.getRequest().getId(),
-                            item.isAvailable());
+                            item.getAvailable());
                 }).toList());
         return requestFullDto;
     }

@@ -20,7 +20,7 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
-    private boolean available;
+    private Boolean available;
     @ManyToOne
     @JoinColumn(name = "item_request_id")
     @JsonIgnore

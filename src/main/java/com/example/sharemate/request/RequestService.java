@@ -61,7 +61,7 @@ public class RequestService {
         requestFullDto.setRequester(request.getUser().getName());
         requestFullDto.setItems(request.getItems().stream()
                 .map(item -> {
-                    return new ItemRequestAnswerDto(item.getId(), item.getDescription(), request.getId(), item.isAvailable());
+                    return new ItemRequestAnswerDto(item.getId(), item.getDescription(), request.getId(), item.getAvailable());
                 }).toList());
         return requestFullDto;
     }

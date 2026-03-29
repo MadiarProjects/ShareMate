@@ -39,7 +39,7 @@ public class ItemService {
         item.setName(itemCreateDto.getName());
         item.setDescription(itemCreateDto.getDescription());
         item.setOwner(user);
-        item.setAvailable(itemCreateDto.isAvailable());
+        item.setAvailable(itemCreateDto.getAvailable());
 
         List<Item> items = itemRepository.findAllByOwnerId(userId);
 
@@ -48,7 +48,7 @@ public class ItemService {
         if (isItemExists) {
             throw new AlreadyExistException("owner at id:" + userId + ", already has item with that name " + item.getName());
         } else {
-            if (itemCreateDto.getRequestId()!=null&&itemCreateDto.isAvailable()){
+            if (itemCreateDto.getRequestId()!=null&&itemCreateDto.getAvailable()!=null&&itemCreateDto.getAvailable()==true){
                 item.setRequest(requestRepository.findById(itemCreateDto.getRequestId())
                         .orElseThrow(()->new NotFoundedException("not founded request")));
                 requestService.addItemToRequest(item);
@@ -77,7 +77,7 @@ public class ItemService {
                 item.getName(),
                 item.getDescription(),
                 item.getOwner(),
-                item.isAvailable(),
+                item.getAvailable(),
                 comments
         );
     }

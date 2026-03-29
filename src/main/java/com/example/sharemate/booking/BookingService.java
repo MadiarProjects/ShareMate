@@ -26,7 +26,7 @@ public class BookingService  {
         booking.setStart(bookingCreateDto.getStart());
         booking.setEnd(bookingCreateDto.getEnd());
         Item item = itemService.getById(bookingCreateDto.getItemId());
-        if (!item.isAvailable()) {
+        if (!item.getAvailable()) {
             throw new InvalidParameterException("item can not be booked");
         }
         booking.setItem(item);

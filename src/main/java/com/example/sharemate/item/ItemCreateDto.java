@@ -11,6 +11,6 @@ public class ItemCreateDto {
     @NotBlank(message = "description should not be empty")
     private String description;
     @NotNull(message = "available should not be null ")
-    private boolean available;
+    private Boolean available;
     private Long requestId;
 }
